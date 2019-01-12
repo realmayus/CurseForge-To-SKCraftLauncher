@@ -1,6 +1,7 @@
 import json
 import sys
 import os.path
+import urllib.request
 
 print('\033[95m################################################')
 print('Open this python file in your directory for the SKLauncher Mods!')
@@ -16,8 +17,6 @@ else:
         print('\033[91m[FATAL] The file you stated does not exist! Exiting...')
         exit()
 
-#json_file = 'C:\\Users\\Marius\\Desktop\\manifest.jso'
-
 json_data = open(json_file)
 
 data = json.load(json_data)
@@ -31,9 +30,25 @@ for element in data['files']:
     projectID = str(element['projectID'])
     fileID = str(element['fileID'])
 
+    print('Creating URL file...')
     url = 'https://minecraft.curseforge.com/projects/' + projectID + '/files/' + fileID + '/download'
-    f = open(projectID + '.txt', 'w')
+    f = open("Mod-" + projectID + "-File-" + fileID + ".jar.url.txt", 'w')
     f.write(url)
     f.close()
 
-print('\033[92m[DONE!] Created ' + str(i) + ' mod download files for modpack \'' + data['name'] + '\' v.' + data['version'] + ' successfully!')
+    print('Downloading mod...')
+    print(url)
+
+
+    # Setting a user-agent because CurseForge doesn't allow us to download mods directly
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-Agent',
+                          'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+    urllib.request.install_opener(opener)
+
+    # Actually downloading the file
+    urllib.request.urlretrieve(url, "Mod-" + projectID + "-File-" + fileID + ".jar")
+
+
+print('\033[92m[DONE!] Created ' + str(i * 2) + ' mod files with URLs for modpack \'' + data['name'] + '\' v.' + data['version'] + '!')
+
